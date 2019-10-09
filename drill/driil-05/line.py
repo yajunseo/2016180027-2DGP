@@ -7,6 +7,7 @@ cursor = load_image('hand_arrow.png')
 background = load_image('KPU_GROUND.png')
 character = load_image('animation_sheet.png')
 
+ count = 0
 def move(p1, p2):
     global x, y
     global dir
