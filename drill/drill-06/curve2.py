@@ -3,6 +3,7 @@ import random
 
 KPU_WIDTH, KPU_HEIGHT = 1280, 1024
 
+
 def handle_events():
     global running
     global x
@@ -29,17 +30,17 @@ x = 800 // 2
 y = 0
 frame = 0
 cx, cy = 0, 0
+
+
 def draw_curve_3_points(p1, p2, p3, p4):
     global cx, cy
     global x, y
     t = 0
     global frame
     global running
-    while t < 9998 / 10000:
-        for i in range(0, 10000 + 1, 2):
-
-
-            t = i / 10000
+    while t < 998 / 1000:
+        for i in range(0, 1000 + 1, 2):
+            t = i / 1000
             cx = ((-t ** 3 + 2 * t ** 2 - t) * p1[0] + (3 * t ** 3 - 5 * t ** 2 + 2) * p2[0] + (
                     -3 * t ** 3 + 4 * t ** 2 + t) * p3[0] + (t ** 3 - t ** 2) * p4[0]) / 2
             cy = ((-t ** 3 + 2 * t ** 2 - t) * p1[1] + (3 * t ** 3 - 5 * t ** 2 + 2) * p2[1] + (
@@ -63,11 +64,9 @@ r = 0
 while running:
     update_canvas()
     while True:
+        handle_events()
         draw_curve_3_points(p[r % 10], p[(r+1) % 10], p[(r+2) % 10], p[(r+3) % 10])
         r += 1
-
-
-    handle_events()
 
 close_canvas()
 
