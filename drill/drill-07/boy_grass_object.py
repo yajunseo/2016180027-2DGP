@@ -27,10 +27,12 @@ class Ball:
         else:
             self.image = load_image('ball41x41.png')
     def update(self):
-        self.y -= random.randint(0, 20)
+        if self.y > 65:
+            self.y -= random.randint(0, 20)
+
 
     def draw(self):
-        self.image.clip_draw(self.frame * 100, 0, 100, 100, self.x, self.y)
+        self.image.draw(self.x, self.y)
 
 
 def handle_events():
@@ -56,15 +58,16 @@ while running:
     handle_events()
     for boy in team:
        boy.update()
-    for ball in balls:
-        ball.update()
+    for soccerball in balls:
+        soccerball.update()
     clear_canvas()
     grass.draw()
     for boy in team:
         boy.draw()
-    for ball in balls:
+    for soccerball in balls:
+        soccerball.draw()
     update_canvas()
-    delay(0.05)
+    delay(0.03)
 # finalization code
 
 close_canvas()
