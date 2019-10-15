@@ -5,8 +5,7 @@ map_width, map_height = 960, 600
 open_canvas(map_width, map_height)
 
 stage1 = load_image('stage1.png')
-move_left = load_image('move.png')
-move_right = load_image('move-r.png')
+
 x = 300
 y = 0
 temp_x = 0
@@ -24,6 +23,9 @@ class Hero:
         self.x, self.y = 300, 30
         self.jump_x, self.jump_y = self.x, self.y
         self.frame = 0
+        self.move_left = load_image('move.png')
+        self.move_right = load_image('move-r.png')
+        self.stage = Background()
 
     def update(self):
         global is_jump
@@ -46,7 +48,7 @@ class Hero:
     def draw(self):
         global is_jump
         global block_size
-        global map_width
+        global map_width, map_height
         global dir
         global look_side
 
@@ -61,12 +63,12 @@ class Hero:
                     temp_y = (2 * t ** 2 - 3 * t + 1) * p1[1] + (-4 * t ** 2 + 4 * t) * p2[1] + (2 * t ** 2 - t) * p3[1]
 
                     clear_canvas()
-                    stage1.draw(map_width // 2, map_height // 2)
+                    self.stage.draw()
 
                     if p1_x < temp_x:
-                        move_right.clip_draw(self.frame * 47, 10, 40, 40, p1_x, p1_y)
+                        self.move_right.clip_draw(self.frame * 47, 10, 40, 40, p1_x, p1_y)
                     elif p1_x >= temp_x:
-                        move_left.clip_draw(self.frame * 47, 55, 40, 40, p1_x, p1_y)
+                        self.move_left.clip_draw(self.frame * 47, 55, 40, 40, p1_x, p1_y)
                     update_canvas()
 
 
@@ -88,14 +90,14 @@ class Hero:
         else:
             if (self.x >= (block_size)) and self.x <= (map_width - block_size):
                 if dir < 0:
-                    move_left.clip_draw(self.frame * 47, 55, 40, 40, self.x, self.y)
+                    self.move_left.clip_draw(self.frame * 47, 55, 40, 40, self.x, self.y)
                 elif dir > 0:
-                    move_right.clip_draw(self.frame * 47, 10, 40, 40,self.x, self.y)
+                    self.move_right.clip_draw(self.frame * 47, 10, 40, 40,self.x, self.y)
                 else:
                     if look_side == 1:
-                        move_right.clip_draw(self.frame * 47, 10, 40, 40, self.x, self.y)
+                        self.move_right.clip_draw(self.frame * 47, 10, 40, 40, self.x, self.y)
                     elif look_side == -1:
-                        move_left.clip_draw(self.frame * 47, 55, 40, 40, self.x, self.y)
+                        self.move_left.clip_draw(self.frame * 47, 55, 40, 40, self.x, self.y)
                 self.x += dir * 2
                 if self.x <= block_size:
                     self.x += 10
@@ -103,11 +105,17 @@ class Hero:
                     self.x -= 10
             else:
                 if look_side == 1:
-                    move_right.clip_draw(self.frame * 47, 10, 40, 40, self.x, self.y)
+                    self.move_right.clip_draw(self.frame * 47, 10, 40, 40, self.x, self.y)
                 elif look_side == -1:
-                    move_left.clip_draw(self.frame * 47, 55, 40, 40, self.x, self.y)
+                    self.move_left.clip_draw(self.frame * 47, 55, 40, 40, self.x, self.y)
 
+class Background:
+    def __init__(self):
+        self.stage = load_image('stage1.png')
 
+    def draw(self):
+        global map_width, map_height
+        self.stage.draw(map_width // 2, map_height // 2)
 
 def handle_events():
     global running
@@ -138,16 +146,17 @@ def handle_events():
                 dir -= 1
 
 
-
 main_hero = Hero()
-
+stage1 = Background()
 
 while running:
 
     handle_events()
     update_canvas()
     main_hero.update()
+
     clear_canvas()
-    stage1.draw(map_width//2, map_height//2)
+
+    stage1.draw()
     main_hero.draw()
 
