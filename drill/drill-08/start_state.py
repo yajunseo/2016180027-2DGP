@@ -1,7 +1,7 @@
 import game_framework
 from pico2d import *
 
-import title_state
+import pause_state
 
 name = "StartState"
 image = None

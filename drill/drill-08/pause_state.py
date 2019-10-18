@@ -2,13 +2,13 @@ import game_framework
 from pico2d import *
 import main_state
 
-name = "TitleState"
+name = "PauseState"
 image = None
-
+flick = 0
 
 def enter():
     global image
-    image = load_image('pause.png')
+    image = load_image('pause1.png')
 
 
 def exit():
@@ -28,8 +28,14 @@ def handle_events():
 
 
 def draw():
+    global flick
+    flick += 1
     clear_canvas()
-    image.draw(400, 300)
+    main_state.draw()
+    if flick % 2 == 0:
+        image.draw(400, 300, 300, 300)
+    if flick == 10:
+        flick = 0
     update_canvas()
 
 
