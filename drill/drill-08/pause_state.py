@@ -26,7 +26,6 @@ def handle_events():
                 game_framework.pop_state()
 
 
-
 def draw():
     global flick
     flick += 1
