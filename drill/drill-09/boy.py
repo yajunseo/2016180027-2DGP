@@ -100,7 +100,7 @@ class SleepState:
 class DashState:
     @staticmethod
     def enter(boy, event):
-        boy.timer = 200
+        boy.timer = 150
 
 
     @staticmethod
