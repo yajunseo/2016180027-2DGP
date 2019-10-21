@@ -16,7 +16,6 @@ key_event_table = {
 }
 
 
-
 # Boy States
 class IdleState:
     @staticmethod
@@ -29,12 +28,11 @@ class IdleState:
             boy.velocity -= 1
         elif event == LEFT_UP:
             boy.velocity += 1
-        boy.timer = 1000
-
 
     @staticmethod
     def exit(boy, event):
         pass
+
     @staticmethod
     def do(boy):
         boy.frame = (boy.frame + 1) % 8
@@ -62,11 +60,13 @@ class RunState:
     @staticmethod
     def exit(boy, event):
         pass
+
     @staticmethod
     def do(boy):
         boy.frame = (boy.frame + 1) % 8
         boy.x += boy.velocity
         boy.x = clamp(25, boy.x, 800 - 25)
+
     @staticmethod
     def draw(boy):
         if boy.velocity == 1:
@@ -75,12 +75,10 @@ class RunState:
             boy.image.clip_draw(boy.frame * 100, 0, 100, 100, boy.x, boy.y)
 
 
-
 class DashState:
     @staticmethod
     def enter(boy, event):
         boy.Dash_timer = 150
-
 
     @staticmethod
     def exit(boy, event):
@@ -110,15 +108,13 @@ next_state_table = {
                 RSHIFT_DOWN: IdleState, RSHIFT_UP: IdleState},
     RunState: {RIGHT_UP: IdleState, LEFT_UP: IdleState, LEFT_DOWN: IdleState,
                RIGHT_DOWN: IdleState,  LSHIFT_DOWN: DashState, LSHIFT_UP: RunState,
-                RSHIFT_DOWN: DashState, RSHIFT_UP: RunState},
+               RSHIFT_DOWN: DashState, RSHIFT_UP: RunState},
 
     DashState: {RIGHT_UP: IdleState, LEFT_UP: IdleState, RIGHT_DOWN: IdleState,
                 LEFT_DOWN: IdleState,
                 LSHIFT_DOWN: DashState, LSHIFT_UP: RunState,
                 RSHIFT_DOWN: DashState, RSHIFT_UP: RunState}
 }
-
-
 
 
 class Boy:
@@ -151,8 +147,6 @@ class Boy:
     def add_event(self, event):
         self.event_que.insert(0, event)
 
-
-
     def update(self):
         self.cur_state.do(self)
         if len(self.event_que) > 0:
@@ -161,11 +155,8 @@ class Boy:
             self.cur_state = next_state_table[self.cur_state][event]
             self.cur_state.enter(self, event)
 
-
     def draw(self):
         self.cur_state.draw(self)
-
-
 
     def handle_event(self, event):
         if (event.type, event.key) in key_event_table:
