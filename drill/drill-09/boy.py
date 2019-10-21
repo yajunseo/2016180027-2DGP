@@ -100,7 +100,7 @@ class SleepState:
 class DashState:
     @staticmethod
     def enter(boy, event):
-        boy.dash_timer = 100
+        boy.timer = 200
 
 
     @staticmethod
@@ -111,15 +111,9 @@ class DashState:
     def do(boy):
         boy.frame = (boy.frame + 1) % 8
         boy.timer -= 1
-        boy.dash_timer -= 1
-        boy.x += boy.velocity
+        boy.x += boy.velocity * 3
         boy.x = clamp(25, boy.x, 800 - 25)
-        if boy.dir > 0:
-            boy.x += boy.velocity * 2
-        else:
-            boy.x -= boy.velocity * 2
-
-        if boy.dash_timer == 0:
+        if boy.timer == 0:
             boy.add_event(LSHIFT_UP)
 
     @staticmethod
@@ -134,15 +128,15 @@ next_state_table = {
     IdleState: {RIGHT_UP: RunState, LEFT_UP: RunState, RIGHT_DOWN: RunState,
                 LEFT_DOWN: RunState, SLEEP_TIMER: SleepState,
                 LSHIFT_DOWN: IdleState, LSHIFT_UP: IdleState,
-                RSHIFT_DOWN: IdleState, RSHIFT_DOWN: IdleState},
+                RSHIFT_DOWN: IdleState, RSHIFT_UP: IdleState},
     RunState: {RIGHT_UP: IdleState, LEFT_UP: IdleState, LEFT_DOWN: IdleState,
-               RIGHT_DOWN: IdleState,  LSHIFT_DOWN: DashState, LSHIFT_UP: DashState,
-                RSHIFT_DOWN: DashState, RSHIFT_DOWN: DashState},
+               RIGHT_DOWN: IdleState,  LSHIFT_DOWN: DashState, LSHIFT_UP: RunState,
+                RSHIFT_DOWN: DashState, RSHIFT_UP: RunState},
     SleepState: {LEFT_DOWN: RunState, RIGHT_DOWN: RunState, LEFT_UP: RunState,
                  RIGHT_UP: RunState, LSHIFT_DOWN: IdleState, LSHIFT_UP: IdleState,
-                RSHIFT_DOWN: IdleState, RSHIFT_DOWN: IdleState},
-    DashState: {RIGHT_UP: RunState, LEFT_UP: RunState, RIGHT_DOWN: RunState,
-                LEFT_DOWN: RunState, SLEEP_TIMER: SleepState,
+                RSHIFT_DOWN: IdleState, RSHIFT_UP: IdleState},
+    DashState: {RIGHT_UP: IdleState, LEFT_UP: IdleState, RIGHT_DOWN: IdleState,
+                LEFT_DOWN: IdleState,
                 LSHIFT_DOWN: DashState, LSHIFT_UP: RunState,
                 RSHIFT_DOWN: DashState, RSHIFT_UP: RunState}
 }
@@ -159,7 +153,6 @@ class Boy:
         self.velocity = 0
         self.frame = 0
         self.timer = 0
-        self.dash_timer = 0
         self.event_que = []
         self.cur_state = IdleState
         self.cur_state.enter(self, None)
