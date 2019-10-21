@@ -98,10 +98,7 @@ class Hero:
                     elif look_side == -1:
                         self.move.clip_draw(self.frame * 16, 176, 16, 16, self.x, self.y, 60, 60)
                 self.x += dir * 2
-                if self.x <= block_size:
-                    self.x += 10
-                if self.x >= map_width - block_size:
-                    self.x -= 10
+                self.x = clamp(block_size, self.x, map_width - block_size)
             else:
                 if look_side == 1:
                     self.move.clip_draw(self.frame * 16, 160, 16, 16, self.x, self.y, 60, 60)
