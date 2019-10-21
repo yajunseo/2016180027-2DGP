@@ -1,15 +1,18 @@
 from pico2d import *
 
 # Boy Event
-RIGHT_DOWN, LEFT_DOWN, RIGHT_UP, LEFT_UP, SLEEP_TIMER, SHIFT_UP, SHIFT_DOWN = range(7)
+RIGHT_DOWN, LEFT_DOWN, RIGHT_UP, LEFT_UP, SLEEP_TIMER, LSHIFT_UP,\
+    LSHIFT_DOWN, RSHIFT_UP, RSHIFT_DOWN = range(9)
 
 key_event_table = {
     (SDL_KEYDOWN, SDLK_RIGHT): RIGHT_DOWN,
     (SDL_KEYDOWN, SDLK_LEFT): LEFT_DOWN,
     (SDL_KEYUP, SDLK_RIGHT): RIGHT_UP,
     (SDL_KEYUP, SDLK_LEFT): LEFT_UP,
-    (SDL_KEYUP, SDLK_LSHIFT): SHIFT_UP,
-    (SDL_KEYDOWN, SDLK_LSHIFT): SHIFT_DOWN
+    (SDL_KEYUP, SDLK_LSHIFT): LSHIFT_UP,
+    (SDL_KEYDOWN, SDLK_LSHIFT): LSHIFT_DOWN,
+    (SDL_KEYUP, SDLK_RSHIFT): RSHIFT_UP,
+    (SDL_KEYDOWN, SDLK_RSHIFT): RSHIFT_DOWN
 }
 
 
@@ -58,7 +61,7 @@ class RunState:
         elif event == LEFT_UP:
             boy.velocity += 1
         boy.dir = boy.velocity
-        boy.dash_timer = 1000
+
     @staticmethod
     def exit(boy, event):
         pass
@@ -97,12 +100,7 @@ class SleepState:
 class DashState:
     @staticmethod
     def enter(boy, event):
-        if event == SHIFT_DOWN and dir > 0:
-            boy.x += boy.velocity * 10
-        elif event == SHIFT_DOWN and dir < 0:
-            boy.x -= boy.velocity * 10
-
-        boy.dir = boy.velocity
+        boy.dash_timer = 100
 
 
     @staticmethod
@@ -116,8 +114,13 @@ class DashState:
         boy.dash_timer -= 1
         boy.x += boy.velocity
         boy.x = clamp(25, boy.x, 800 - 25)
+        if boy.dir > 0:
+            boy.x += boy.velocity * 2
+        else:
+            boy.x -= boy.velocity * 2
+
         if boy.dash_timer == 0:
-            boy.add_event(SHIFT_UP)
+            boy.add_event(LSHIFT_UP)
 
     @staticmethod
     def draw(boy):
@@ -129,12 +132,19 @@ class DashState:
 
 next_state_table = {
     IdleState: {RIGHT_UP: RunState, LEFT_UP: RunState, RIGHT_DOWN: RunState,
-                LEFT_DOWN: RunState, SLEEP_TIMER: SleepState},
+                LEFT_DOWN: RunState, SLEEP_TIMER: SleepState,
+                LSHIFT_DOWN: IdleState, LSHIFT_UP: IdleState,
+                RSHIFT_DOWN: IdleState, RSHIFT_DOWN: IdleState},
     RunState: {RIGHT_UP: IdleState, LEFT_UP: IdleState, LEFT_DOWN: IdleState,
-               RIGHT_DOWN: IdleState, SHIFT_UP: DashState, SHIFT_DOWN: DashState},
+               RIGHT_DOWN: IdleState,  LSHIFT_DOWN: DashState, LSHIFT_UP: DashState,
+                RSHIFT_DOWN: DashState, RSHIFT_DOWN: DashState},
     SleepState: {LEFT_DOWN: RunState, RIGHT_DOWN: RunState, LEFT_UP: RunState,
-                 RIGHT_UP: RunState},
-    DashState: {SHIFT_UP: RunState, SHIFT_DOWN: RunState}
+                 RIGHT_UP: RunState, LSHIFT_DOWN: IdleState, LSHIFT_UP: IdleState,
+                RSHIFT_DOWN: IdleState, RSHIFT_DOWN: IdleState},
+    DashState: {RIGHT_UP: RunState, LEFT_UP: RunState, RIGHT_DOWN: RunState,
+                LEFT_DOWN: RunState, SLEEP_TIMER: SleepState,
+                LSHIFT_DOWN: DashState, LSHIFT_UP: RunState,
+                RSHIFT_DOWN: DashState, RSHIFT_UP: RunState}
 }
 
 
