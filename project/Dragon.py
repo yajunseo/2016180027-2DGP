@@ -1,158 +1,171 @@
 from pico2d import *
 
+RIGHT_DOWN, LEFT_DOWN, RIGHT_UP, LEFT_UP, SPACE_DOWN = range(5)
 
-map_width, map_height = 960, 600
-open_canvas(map_width, map_height)
+key_event_table = {
+    (SDL_KEYDOWN, SDLK_RIGHT): RIGHT_DOWN,
+    (SDL_KEYDOWN, SDLK_LEFT): LEFT_DOWN,
+    (SDL_KEYUP, SDLK_RIGHT): RIGHT_UP,
+    (SDL_KEYUP, SDLK_LEFT): LEFT_UP,
+    (SDL_KEYDOWN, SDLK_SPACE): SPACE_DOWN
+}
 
-stage1 = load_image('stage1.png')
+class IdleState:
+    @staticmethod
+    def enter(Dragon, event):
+        if event == RIGHT_DOWN:
+            Dragon.velocity += 1
+        elif event == LEFT_DOWN:
+            Dragon.velocity -= 1
+        elif event == RIGHT_UP:
+            Dragon.velocity -= 1
+        elif event == LEFT_UP:
+            Dragon.velocity += 1
 
-x = 300
-y = 0
-temp_x = 0
-temp_y = 0
-frame = 0
-running = True
-look_side = 1
-dir = 0
-is_jump = 0
-block_size = 70
+
+    @staticmethod
+    def exit(Dragon, event):
+        pass
+
+    @staticmethod
+    def do(Dragon):
+        Dragon.frame_speed += 1
+        if Dragon.frame_speed > 30:
+            Dragon.frame = (Dragon.frame + 1) % 16
+            Dragon.frame_speed = 0
+
+    @staticmethod
+    def draw(Dragon):
+        if Dragon.dir == 1:
+            Dragon.image.clip_draw(Dragon.frame * 16, 160, 16, 16, Dragon.x, Dragon.y, 60, 60)
+        else:
+            Dragon.image.clip_draw(Dragon.frame * 16, 176, 16, 16, Dragon.x, Dragon.y, 60, 60)
 
 
-class Hero:
+class RunState:
+    @staticmethod
+    def enter(Dragon, event):
+        if event == RIGHT_DOWN:
+            Dragon.velocity += 1
+        elif event == LEFT_DOWN:
+            Dragon.velocity -= 1
+        elif event == RIGHT_UP:
+            Dragon.velocity -= 1
+        elif event == LEFT_UP:
+            Dragon.velocity += 1
+        Dragon.dir = Dragon.velocity
+
+    @staticmethod
+    def exit(Dragon, event):
+        pass
+
+    @staticmethod
+    def do(Dragon):
+        Dragon.frame_speed += 1
+        if Dragon.frame_speed > 30:
+            Dragon.frame = (Dragon.frame + 1) % 16
+            Dragon.frame_speed = 0
+        Dragon.x += Dragon.velocity
+        Dragon.x = clamp(70, Dragon.x, 960 - 70)
+
+    @staticmethod
+    def draw(Dragon):
+        if Dragon.velocity == 1:
+            Dragon.image.clip_draw(Dragon.frame * 16, 128, 16, 16, Dragon.x, Dragon.y, 60, 60)
+        else:
+            Dragon.image.clip_draw(Dragon.frame * 16, 144, 16, 16, Dragon.x, Dragon.y, 60, 60)
+
+class JumpState:
+    temp_x, temp_y = 0, 0
+    t = 0
+    p1, p2, p3 = (0, 0), (0, 0), (0, 0)
+    @staticmethod
+    def enter(Dragon, event):
+        if event == SPACE_DOWN:
+            Dragon.jump_y = Dragon.y + 200
+            if Dragon.velocity > 0:
+                Dragon.jump_x = Dragon.x + 200
+            elif Dragon.velocity < 0:
+                Dragon.jump_x = Dragon.x - 200
+            else:
+                Dragon.jump_x = Dragon.x
+            JumpState.p1, JumpState.p2, JumpState.p3 = (Dragon.x, Dragon.y), ((Dragon.jump_x + Dragon.x) / 2, Dragon.jump_y), (Dragon.jump_x, Dragon.y)
+            t = 0
+    @staticmethod
+    def exit(Dragon, event):
+        pass
+
+    @staticmethod
+    def do(Dragon):
+        Dragon.frame_speed += 1
+        if Dragon.frame_speed > 30:
+            Dragon.frame = (Dragon.frame + 1) % 16
+            Dragon.frame_speed = 0
+
+        while JumpState.t <= 1:
+            for i in range(0, 1000 + 1, 2):
+                JumpState.t = i / 1000
+                JumpState.temp_x = (2 * JumpState.t ** 2 - 3 * JumpState.t + 1) * JumpState.p1[0] + (-4 * JumpState.t ** 2 + 4 * JumpState.t) * JumpState.p2[0] + (2 * JumpState.t ** 2 - JumpState.t) * JumpState.p3[0]
+                JumpState.temp_y = (2 * JumpState.t ** 2 - 3 * JumpState.t + 1) * JumpState.p1[1] + (-4 * JumpState.t ** 2 + 4 * JumpState.t) * JumpState.p2[1] + (2 * JumpState.t ** 2 - JumpState.t) * JumpState.p3[1]
+                JumpState.temp_x = clamp(70, Dragon.x, 960 - 70)
+            Dragon.x = JumpState.temp_x
+            Dragon.y = JumpState.temp_y
+
+    @staticmethod
+    def draw(Dragon):
+        if Dragon.dir == 1:
+            Dragon.image.clip_draw(Dragon.frame * 16, 0, 16, 16, JumpState.temp_x, JumpState.temp_y, 60, 60)
+        else:
+            Dragon.image.clip_draw(Dragon.frame * 16, 16, 16, 16, JumpState.temp_x, JumpState.temp_y, 60, 60)
+
+
+next_state_table = {
+    IdleState: {RIGHT_UP: RunState, LEFT_UP: RunState, RIGHT_DOWN: RunState,
+                LEFT_DOWN: RunState, SPACE_DOWN: JumpState},
+    RunState: {RIGHT_UP: IdleState, LEFT_UP: IdleState, LEFT_DOWN: IdleState,
+               RIGHT_DOWN: IdleState, SPACE_DOWN: JumpState},
+    JumpState: {RIGHT_UP: RunState, LEFT_UP: RunState, RIGHT_DOWN: RunState,
+                LEFT_DOWN: RunState}
+}
+
+
+class Dragon:
     def __init__(self):
-        self.x, self.y = 300, 50
-        self.jump_x, self.jump_y = self.x, self.y
+        self.x, self.y = 480, 70
+        self.jump_x, self.jump_y = 0, 0
+        self.image = load_image('sprite\\Character\\character.png')
+        self.dir = 1
+        self.velocity = 0
         self.frame = 0
-        self.move = load_image('sprite\\Character\\character.png')
-        self.stage = Background()
+        self.frame_speed = 0
+        self.event_que = []
+        self.cur_state = IdleState
+        self.cur_state.enter(self, None)
+
+    def update_state(self,  state):
+        if len(self.event_que) > 0:
+            event = self.event_que.pop()
+            self.cur_state.exit(self, event)
+            self.cur_state = next_state_table[self.cur_state][event]
+            self.cur_state.enter(self, event)
+
+    def add_event(self, event):
+        self.event_que.insert(0, event)
 
     def update(self):
-        global is_jump
-        global dir
-        if is_jump == 1:
-            self.jump_y = self.y + 200
-            if dir == 0:
-                if look_side == 1:
-                    self.jump_x = self.x + 5
-                elif look_side == -1:
-                    self.jump_x = self.x - 5
-            else:
-                if look_side == 1:
-                    self.jump_x = self.x + 200
-                elif look_side == -1:
-                    self.jump_x = self.x - 200
-
-        self.frame = (self.frame + 1) % 16
+        self.cur_state.do(self)
+        if len(self.event_que) > 0:
+            event = self.event_que.pop()
+            self.cur_state.exit(self, event)
+            self.cur_state = next_state_table[self.cur_state][event]
+            self.cur_state.enter(self, event)
 
     def draw(self):
-        global is_jump
-        global block_size
-        global map_width, map_height
-        global dir
-        global look_side
+        self.cur_state.draw(self)
 
-        if is_jump == 1:
-            p1, p2, p3 = (self.x, self.y), ((self.jump_x + self.x) / 2, self.jump_y), (self.jump_x, self.y)
-            t = 0
-            p1_x, p1_y = p1[0], p1[1]
-            while t < 998 / 1000:
-                for i in range(0, 1000 + 1, 2):
-                    t = i / 1000
-                    temp_x = (2 * t ** 2 - 3 * t + 1) * p1[0] + (-4 * t ** 2 + 4 * t) * p2[0] + (2 * t ** 2 - t) * p3[0]
-                    temp_y = (2 * t ** 2 - 3 * t + 1) * p1[1] + (-4 * t ** 2 + 4 * t) * p2[1] + (2 * t ** 2 - t) * p3[1]
+    def handle_event(self, event):
+        if (event.type, event.key) in key_event_table:
+            key_event = key_event_table[(event.type, event.key)]
+            self.add_event(key_event)
 
-                    clear_canvas()
-                    self.stage.draw()
-
-                    if p1_x < temp_x:
-                        self.move.clip_draw(self.frame * 16, 0, 16, 16, p1_x, p1_y, 60, 60)
-                    elif p1_x >= temp_x:
-                        self.move.clip_draw(self.frame * 16, 16, 16, 16, p1_x, p1_y, 60, 60)
-                    update_canvas()
-
-
-                    p1_y = temp_y
-
-                    if (temp_x > block_size) and (temp_x < (map_width - block_size)):
-                        p1_x = temp_x
-
-                    else:
-                        if p1_x <= block_size:
-                            p1_x = (block_size + 10)
-                        if p1_x >= (map_width - block_size):
-                            p1_x = (map_width - block_size - 10)
-                    self.frame = (self.frame + 1) % 7
-            is_jump = 0
-            self.x = p1_x
-            self.y = p1_y
-
-        else:
-            if (self.x >= (block_size)) and self.x <= (map_width - block_size):
-                if dir < 0:
-                    self.move.clip_draw(self.frame * 16, 144, 16, 16, self.x, self.y, 60, 60)
-                elif dir > 0:
-                    self.move.clip_draw(self.frame * 16, 128, 16, 16, self.x, self.y, 60, 60)
-                else:     
-                    if look_side == 1:
-                        self.move.clip_draw(self.frame * 16, 160, 16,16, self.x, self.y, 60, 60)
-                    elif look_side == -1:
-                        self.move.clip_draw(self.frame * 16, 176, 16, 16, self.x, self.y, 60, 60)
-                self.x += dir * 2
-                self.x = clamp(block_size, self.x, map_width - block_size)
-            else:
-                if look_side == 1:
-                    self.move.clip_draw(self.frame * 16, 160, 16, 16, self.x, self.y, 60, 60)
-                elif look_side == -1:
-                    self.move.clip_draw(self.frame * 16, 176, 16, 16, self.x, self.y, 60, 60)
-
-class Background:
-    def __init__(self):
-        self.stage = load_image('stage1.png')
-
-    def draw(self):
-        global map_width, map_height
-        self.stage.draw(map_width // 2, map_height // 2)
-
-def handle_events():
-    global running
-    global x, y
-    global dir
-    global look_side
-    global is_jump
-    events = get_events()
-    for event in events:
-        if event.type == SDL_QUIT:
-            running = False
-        if event.type == SDL_KEYDOWN:
-            run = 1
-            if event.key == SDLK_LEFT:
-                dir -= 1
-                look_side = -1
-            if event.key == SDLK_RIGHT:
-                dir += 1
-                look_side = 1
-            if event.key == SDLK_SPACE:
-                is_jump = 1
-
-        if event.type == SDL_KEYUP:
-            run = 0
-            if event.key == SDLK_LEFT:
-                dir += 1
-            if event.key == SDLK_RIGHT:
-                dir -= 1
-
-
-main_hero = Hero()
-stage1 = Background()
-
-while running:
-
-    handle_events()
-    update_canvas()
-    main_hero.update()
-
-    clear_canvas()
-
-    stage1.draw()
-    main_hero.draw()
 
