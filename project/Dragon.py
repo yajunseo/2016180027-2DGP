@@ -7,7 +7,7 @@ key_event_table = {
     (SDL_KEYDOWN, SDLK_LEFT): LEFT_DOWN,
     (SDL_KEYUP, SDLK_RIGHT): RIGHT_UP,
     (SDL_KEYUP, SDLK_LEFT): LEFT_UP,
-    (SDL_KEYDOWN, SDLK_SPACE): SPACE_DOWN
+    (SDL_KEYDOWN, SDLK_SPACE): SPACE_DOWN,
 }
 
 class IdleState:
@@ -75,57 +75,15 @@ class RunState:
         else:
             Dragon.image.clip_draw(Dragon.frame * 16, 144, 16, 16, Dragon.x, Dragon.y, 60, 60)
 
-class JumpState:
-    temp_x, temp_y = 0, 0
-    t = 0
-    p1, p2, p3 = (0, 0), (0, 0), (0, 0)
-    @staticmethod
-    def enter(Dragon, event):
-        if event == SPACE_DOWN:
-            Dragon.jump_y = Dragon.y + 200
-            if Dragon.velocity > 0:
-                Dragon.jump_x = Dragon.x + 200
-            elif Dragon.velocity < 0:
-                Dragon.jump_x = Dragon.x - 200
-            else:
-                Dragon.jump_x = Dragon.x
-            JumpState.p1, JumpState.p2, JumpState.p3 = (Dragon.x, Dragon.y), ((Dragon.jump_x + Dragon.x) / 2, Dragon.jump_y), (Dragon.jump_x, Dragon.y)
-            t = 0
-    @staticmethod
-    def exit(Dragon, event):
-        pass
 
-    @staticmethod
-    def do(Dragon):
-        Dragon.frame_speed += 1
-        if Dragon.frame_speed > 30:
-            Dragon.frame = (Dragon.frame + 1) % 16
-            Dragon.frame_speed = 0
-
-        while JumpState.t <= 1:
-            for i in range(0, 1000 + 1, 2):
-                JumpState.t = i / 1000
-                JumpState.temp_x = (2 * JumpState.t ** 2 - 3 * JumpState.t + 1) * JumpState.p1[0] + (-4 * JumpState.t ** 2 + 4 * JumpState.t) * JumpState.p2[0] + (2 * JumpState.t ** 2 - JumpState.t) * JumpState.p3[0]
-                JumpState.temp_y = (2 * JumpState.t ** 2 - 3 * JumpState.t + 1) * JumpState.p1[1] + (-4 * JumpState.t ** 2 + 4 * JumpState.t) * JumpState.p2[1] + (2 * JumpState.t ** 2 - JumpState.t) * JumpState.p3[1]
-                JumpState.temp_x = clamp(70, Dragon.x, 960 - 70)
-            Dragon.x = JumpState.temp_x
-            Dragon.y = JumpState.temp_y
-
-    @staticmethod
-    def draw(Dragon):
-        if Dragon.dir == 1:
-            Dragon.image.clip_draw(Dragon.frame * 16, 0, 16, 16, JumpState.temp_x, JumpState.temp_y, 60, 60)
-        else:
-            Dragon.image.clip_draw(Dragon.frame * 16, 16, 16, 16, JumpState.temp_x, JumpState.temp_y, 60, 60)
 
 
 next_state_table = {
     IdleState: {RIGHT_UP: RunState, LEFT_UP: RunState, RIGHT_DOWN: RunState,
-                LEFT_DOWN: RunState, SPACE_DOWN: JumpState},
+                LEFT_DOWN: RunState},
     RunState: {RIGHT_UP: IdleState, LEFT_UP: IdleState, LEFT_DOWN: IdleState,
-               RIGHT_DOWN: IdleState, SPACE_DOWN: JumpState},
-    JumpState: {RIGHT_UP: RunState, LEFT_UP: RunState, RIGHT_DOWN: RunState,
-                LEFT_DOWN: RunState}
+               RIGHT_DOWN: IdleState}
+
 }
 
 
