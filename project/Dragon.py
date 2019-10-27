@@ -7,7 +7,6 @@ key_event_table = {
     (SDL_KEYDOWN, SDLK_LEFT): LEFT_DOWN,
     (SDL_KEYUP, SDLK_RIGHT): RIGHT_UP,
     (SDL_KEYUP, SDLK_LEFT): LEFT_UP,
-    (SDL_KEYDOWN, SDLK_SPACE): SPACE_DOWN,
 }
 
 class IdleState:
@@ -37,9 +36,9 @@ class IdleState:
     @staticmethod
     def draw(Dragon):
         if Dragon.dir == 1:
-            Dragon.image.clip_draw(Dragon.frame * 16, 160, 16, 16, Dragon.x, Dragon.y, 60, 60)
+            Dragon.image.clip_draw(Dragon.frame * 16, 160, 16, 16, Dragon.x, Dragon.y, 50, 50)
         else:
-            Dragon.image.clip_draw(Dragon.frame * 16, 176, 16, 16, Dragon.x, Dragon.y, 60, 60)
+            Dragon.image.clip_draw(Dragon.frame * 16, 176, 16, 16, Dragon.x, Dragon.y, 50, 50)
 
 
 class RunState:
@@ -65,15 +64,15 @@ class RunState:
         if Dragon.frame_speed > 30:
             Dragon.frame = (Dragon.frame + 1) % 16
             Dragon.frame_speed = 0
-        Dragon.x += Dragon.velocity
+        Dragon.x += Dragon.velocity * 2
         Dragon.x = clamp(70, Dragon.x, 960 - 70)
 
     @staticmethod
     def draw(Dragon):
         if Dragon.velocity == 1:
-            Dragon.image.clip_draw(Dragon.frame * 16, 128, 16, 16, Dragon.x, Dragon.y, 60, 60)
+            Dragon.image.clip_draw(Dragon.frame * 16, 128, 16, 16, Dragon.x, Dragon.y, 50, 50)
         else:
-            Dragon.image.clip_draw(Dragon.frame * 16, 144, 16, 16, Dragon.x, Dragon.y, 60, 60)
+            Dragon.image.clip_draw(Dragon.frame * 16, 144, 16, 16, Dragon.x, Dragon.y, 50, 50)
 
 
 
@@ -89,7 +88,7 @@ next_state_table = {
 
 class Dragon:
     def __init__(self):
-        self.x, self.y = 480, 70
+        self.x, self.y = 480, 50
         self.jump_x, self.jump_y = 0, 0
         self.image = load_image('sprite\\Character\\character.png')
         self.dir = 1
