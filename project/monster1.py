@@ -22,13 +22,13 @@ class Monster1:
         self.turn += 1
         if self.turn >= 0:
             self.dir = 1
-            self.x += 2
+            self.x += 1
             self.x = clamp(70, self.x, 960 - 70)
             if self.turn >= 100:
                 self.turn = - 100
         if self.turn < 0:
             self.dir = -1
-            self.x -= 2
+            self.x -= 1
             self.x = clamp(70, self.x, 960 - 70)
 
     def draw(self):

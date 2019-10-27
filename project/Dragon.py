@@ -1,12 +1,13 @@
 from pico2d import *
 
-RIGHT_DOWN, LEFT_DOWN, RIGHT_UP, LEFT_UP, SPACE_DOWN = range(5)
+RIGHT_DOWN, LEFT_DOWN, RIGHT_UP, LEFT_UP = range(4)
 
 key_event_table = {
     (SDL_KEYDOWN, SDLK_RIGHT): RIGHT_DOWN,
     (SDL_KEYDOWN, SDLK_LEFT): LEFT_DOWN,
     (SDL_KEYUP, SDLK_RIGHT): RIGHT_UP,
-    (SDL_KEYUP, SDLK_LEFT): LEFT_UP,
+    (SDL_KEYUP, SDLK_LEFT): LEFT_UP
+
 }
 
 class IdleState:
@@ -76,7 +77,6 @@ class RunState:
 
 
 
-
 next_state_table = {
     IdleState: {RIGHT_UP: RunState, LEFT_UP: RunState, RIGHT_DOWN: RunState,
                 LEFT_DOWN: RunState},
@@ -89,7 +89,7 @@ next_state_table = {
 class Dragon:
     def __init__(self):
         self.x, self.y = 480, 50
-        self.jump_x, self.jump_y = 0, 0
+        self.jump_x, self.jump_y = self.x, self.y
         self.image = load_image('sprite\\Character\\character.png')
         self.dir = 1
         self.velocity = 0
