@@ -5,25 +5,37 @@ import random
 class Monster1:
     image = None
     def __init__(self):
-        self.x, self.y = random.randint(100, 700), 90
+        self.x, self.y = random.randint(70, 890), 50
+        self.turn = random.randint(-100, 100)
         self.frame = random.randint(0, 12)
+        self.dir = 1
         self.frame_speed = 0
-        if Monster1.image == None:
-            Monster1.image = load_image('sprite\\Enemy\\walker.png')
+        if self.image == None:
+            self.image = load_image('sprite\\Enemy\\walker.png')
 
 
     def update(self):
-        Monster1.frame_speed += 1
-        if Monster1.frame_speed > 30:
-            Monster1.frame = (Monster1.frame + 1) % 12
-            Monster1.frame_speed = 0
-        self.x += 5
+        self.frame_speed += 1
+        if self.frame_speed > 30:
+            self.frame = (self.frame + 1) % 12
+            self.frame_speed = 0
+        self.turn += 1
+        if self.turn >= 0:
+            self.dir = 1
+            self.x += 2
+            self.x = clamp(70, self.x, 960 - 70)
+            if self.turn >= 100:
+                self.turn = - 100
+        if self.turn < 0:
+            self.dir = -1
+            self.x -= 2
+            self.x = clamp(70, self.x, 960 - 70)
 
     def draw(self):
-        if Monster1.dir == 1:
-            Monster1.image.clip_draw(Monster1.frame * 16, 128, 16, 16, Monster1.x, Monster1.y, 50, 50)
+        if self.dir == 1:
+            self.image.clip_draw(self.frame * 16, 224, 16, 16, self.x, self.y, 50, 50)
         else:
-            Monster1.image.clip_draw(Monster1.frame * 16, 144, 16, 16, Monster1.x, Monster1.y, 50, 50)
+            self.image.clip_draw(self.frame * 16, 240, 16, 16, self.x, self.y, 50, 50)
 
 
 

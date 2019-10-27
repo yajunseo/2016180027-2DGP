@@ -5,19 +5,33 @@ import os
 from pico2d import *
 
 import game_framework
-import stage1_state
 
-name = "MainState"
+
+from dragon import Dragon
+from background import Background
+from monster1 import Monster1
+
+
+name = "main_state"
 
 dragon = None
-stage = None
-
+background = None
+monster1 = None
 
 def enter():
-    pass
+    global dragon, background, monster1
+    dragon = Dragon()
+    background = Background()
+    monster1 = [Monster1() for i in range(6)]
+
+
 
 def exit():
-    pass
+    global dragon, background, monster1
+    del dragon
+    del background
+    del monster1
+
 
 def pause():
     pass
@@ -37,13 +51,20 @@ def handle_events():
         else:
             dragon.handle_event(event)
 
-game_framework.change_state(stage1_state)
+
 
 def update():
-    pass
+    dragon.update()
+    for mon in monster1:
+        mon.update()
 
 def draw():
-    pass
+    clear_canvas()
+    background.draw()
+    for mon in monster1:
+        mon.draw()
+    dragon.draw()
+    update_canvas()
 
 
 
