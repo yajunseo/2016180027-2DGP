@@ -22,13 +22,11 @@ def enter():
     global dragon, background, monster1
     dragon = Dragon()
     background = Background()
-    monster1 = [Monster1() for i in range(6)]
+    monster1 = Monster1()
     game_world.add_object(background, 0)
     game_world.add_object(dragon, 1)
-    cnt = 2
-    for i in monster1:
-        game_world.add_object(i, cnt)
-        cnt += 1
+    game_world.add_object(monster1, 2)
+
 
 
 def exit():

@@ -11,13 +11,14 @@ class Bubble:
         self.frame = 0
         self.frame_speed = 0
         self.timer = 0
+        self.reflect = 0
 
 
     def draw(self):
         if 80 < self.x and self.x < 880:
             self.image.clip_draw(self.frame * 16, 224, 13, 13, self.x, self.y, 40, 40)
         else:
-            self.image.clip_draw(0, 192, 13, 16, self.x, self.y, 50, 50)
+            self.image.clip_draw(0, 192, 14, 16, self.x, self.y, 50, 50)
 
 
 
@@ -31,7 +32,15 @@ class Bubble:
             self.x += self.velocity
         if self.x <= 80 or self.x >= 890:
             if self.y < 510:
-                self.y += 0.5
+                if self.reflect == 0:
+                    self.y += 0.5
+                elif self.reflect == 1:
+                    self.y -= 0.5
+                if self.y == 509:
+                    self.reflect = 1
+
+                if self.reflect == 1 and self.y == 500:
+                    self.reflect = 0
 
 
         if self.timer == 3000:
