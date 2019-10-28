@@ -1,12 +1,16 @@
 from pico2d import *
+from bubble import  Bubble
 
-RIGHT_DOWN, LEFT_DOWN, RIGHT_UP, LEFT_UP = range(4)
+import  game_world
+
+RIGHT_DOWN, LEFT_DOWN, RIGHT_UP, LEFT_UP, CTRL = range(5)
 
 key_event_table = {
     (SDL_KEYDOWN, SDLK_RIGHT): RIGHT_DOWN,
     (SDL_KEYDOWN, SDLK_LEFT): LEFT_DOWN,
     (SDL_KEYUP, SDLK_RIGHT): RIGHT_UP,
-    (SDL_KEYUP, SDLK_LEFT): LEFT_UP
+    (SDL_KEYUP, SDLK_LEFT): LEFT_UP,
+    (SDL_KEYDOWN, SDLK_LCTRL): CTRL
 
 }
 
@@ -25,7 +29,8 @@ class IdleState:
 
     @staticmethod
     def exit(Dragon, event):
-        pass
+        if event == CTRL:
+            Dragon.bubble()
 
     @staticmethod
     def do(Dragon):
@@ -37,9 +42,9 @@ class IdleState:
     @staticmethod
     def draw(Dragon):
         if Dragon.dir == 1:
-            Dragon.image.clip_draw(Dragon.frame * 16, 160, 16, 16, Dragon.x, Dragon.y, 50, 50)
+            Dragon.image.clip_draw(Dragon.frame * 16, 32, 16, 16, Dragon.x, Dragon.y, 50, 50)
         else:
-            Dragon.image.clip_draw(Dragon.frame * 16, 176, 16, 16, Dragon.x, Dragon.y, 50, 50)
+            Dragon.image.clip_draw(Dragon.frame * 16, 48, 16, 16, Dragon.x, Dragon.y, 50, 50)
 
 
 class RunState:
@@ -57,7 +62,8 @@ class RunState:
 
     @staticmethod
     def exit(Dragon, event):
-        pass
+        if event == CTRL:
+            Dragon.bubble()
 
     @staticmethod
     def do(Dragon):
@@ -79,9 +85,9 @@ class RunState:
 
 next_state_table = {
     IdleState: {RIGHT_UP: RunState, LEFT_UP: RunState, RIGHT_DOWN: RunState,
-                LEFT_DOWN: RunState},
+                LEFT_DOWN: RunState, CTRL: IdleState},
     RunState: {RIGHT_UP: IdleState, LEFT_UP: IdleState, LEFT_DOWN: IdleState,
-               RIGHT_DOWN: IdleState}
+               RIGHT_DOWN: IdleState, CTRL: RunState}
 
 }
 
@@ -98,6 +104,11 @@ class Dragon:
         self.event_que = []
         self.cur_state = IdleState
         self.cur_state.enter(self, None)
+
+    def bubble(self):
+        bubble = Bubble(self.x, self.y, self.dir * 1.5)
+        game_world.add_object(bubble, 1)
+
 
     def update_state(self,  state):
         if len(self.event_que) > 0:

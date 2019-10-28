@@ -5,7 +5,7 @@ import os
 from pico2d import *
 
 import game_framework
-
+import game_world
 
 from dragon import Dragon
 from background import Background
@@ -23,14 +23,16 @@ def enter():
     dragon = Dragon()
     background = Background()
     monster1 = [Monster1() for i in range(6)]
-
+    game_world.add_object(background, 0)
+    game_world.add_object(dragon, 1)
+    cnt = 2
+    for i in monster1:
+        game_world.add_object(i, cnt)
+        cnt += 1
 
 
 def exit():
-    global dragon, background, monster1
-    del dragon
-    del background
-    del monster1
+    game_world.clear()
 
 
 def pause():
@@ -54,16 +56,13 @@ def handle_events():
 
 
 def update():
-    dragon.update()
-    for mon in monster1:
-        mon.update()
+    for game_object in game_world.all_objects():
+        game_object.update()
 
 def draw():
     clear_canvas()
-    background.draw()
-    for mon in monster1:
-        mon.draw()
-    dragon.draw()
+    for game_object in game_world.all_objects():
+        game_object.draw()
     update_canvas()
 
 
