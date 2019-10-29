@@ -29,7 +29,7 @@ class Bubble:
             self.frame = (self.frame + 1) % 2
             self.frame_speed = 0
         if 80 < self.x and self.x < 890:
-            self.x += self.velocity
+            self.x += self.velocity * 2
         if self.x <= 80 or self.x >= 890:
             if self.y < 510:
                 if self.reflect == 0:

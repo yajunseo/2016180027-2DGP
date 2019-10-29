@@ -3,15 +3,15 @@ from bubble import  Bubble
 
 import  game_world
 
-RIGHT_DOWN, LEFT_DOWN, RIGHT_UP, LEFT_UP, CTRL = range(5)
+RIGHT_DOWN, LEFT_DOWN, RIGHT_UP, LEFT_UP, CTRL, SPACE = range(6)
 
 key_event_table = {
     (SDL_KEYDOWN, SDLK_RIGHT): RIGHT_DOWN,
     (SDL_KEYDOWN, SDLK_LEFT): LEFT_DOWN,
     (SDL_KEYUP, SDLK_RIGHT): RIGHT_UP,
     (SDL_KEYUP, SDLK_LEFT): LEFT_UP,
-    (SDL_KEYDOWN, SDLK_LCTRL): CTRL
-
+    (SDL_KEYDOWN, SDLK_LCTRL): CTRL,
+    (SDL_KEYDOWN, SDLK_SPACE): SPACE
 }
 
 class IdleState:
@@ -25,6 +25,7 @@ class IdleState:
             Dragon.velocity -= 1
         elif event == LEFT_UP:
             Dragon.velocity += 1
+
 
 
     @staticmethod
@@ -42,10 +43,9 @@ class IdleState:
     @staticmethod
     def draw(Dragon):
         if Dragon.dir == 1:
-            Dragon.image.clip_draw(Dragon.frame * 16, 32, 16, 16, Dragon.x, Dragon.y, 50, 50)
+             Dragon.image.clip_draw(Dragon.frame * 16, 32, 16, 16, Dragon.x, Dragon.y, 50, 50)
         else:
-            Dragon.image.clip_draw(Dragon.frame * 16, 48, 16, 16, Dragon.x, Dragon.y, 50, 50)
-
+             Dragon.image.clip_draw(Dragon.frame * 16, 48, 16, 16, Dragon.x, Dragon.y, 50, 50)
 
 class RunState:
     @staticmethod
@@ -104,6 +104,7 @@ class Dragon:
         self.event_que = []
         self.cur_state = IdleState
         self.cur_state.enter(self, None)
+        self.attack_motion = 0
 
     def bubble(self):
         bubble = Bubble(self.x, self.y, self.dir * 1.5)
@@ -135,5 +136,4 @@ class Dragon:
         if (event.type, event.key) in key_event_table:
             key_event = key_event_table[(event.type, event.key)]
             self.add_event(key_event)
-
 
