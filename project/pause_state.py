@@ -4,11 +4,10 @@ import main_state
 
 name = "PauseState"
 image = None
-flick = 0
 
 def enter():
     global image
-    image = load_image('pause1.png')
+    image = load_image('sprite\\Game_pause.png')
 
 
 def exit():
@@ -27,15 +26,10 @@ def handle_events():
 
 
 def draw():
-    global flick
-    flick += 1
-    clear_canvas()
-    main_state.draw()
-    if flick % 2 == 0:
-        image.draw(400, 300, 300, 300)
-    if flick == 10:
-        flick = 0
     update_canvas()
+    image.draw(480, 300, 300, 300)
+
+
 
 
 

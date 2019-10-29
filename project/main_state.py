@@ -6,6 +6,7 @@ from pico2d import *
 
 import game_framework
 import game_world
+import pause_state
 
 from dragon import Dragon
 from background import Background
@@ -22,10 +23,14 @@ def enter():
     global dragon, background, monster1
     dragon = Dragon()
     background = Background()
-    monster1 = Monster1()
+    monster1 = Monster1(690, 240)
+    monster2 = Monster1(220, 240)
+    monster3 = Monster1(400, 410)
     game_world.add_object(background, 0)
     game_world.add_object(dragon, 1)
     game_world.add_object(monster1, 2)
+    game_world.add_object(monster2, 3)
+    game_world.add_object(monster3, 4)
 
 
 
@@ -48,6 +53,8 @@ def handle_events():
             game_framework.quit()
         elif event.type == SDL_KEYDOWN and event.key == SDLK_ESCAPE:
                 game_framework.quit()
+        elif event.type == SDL_KEYDOWN and event.key == SDLK_p:
+            game_framework.push_state(pause_state)
         else:
             dragon.handle_event(event)
 

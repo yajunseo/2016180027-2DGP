@@ -4,8 +4,8 @@ import random
 
 class Monster1:
     image = None
-    def __init__(self):
-        self.x, self.y = random.randint(70, 890), 50
+    def __init__(self, x, y):
+        self.x, self.y = x, y
         self.turn = random.randint(-100, 100)
         self.frame = random.randint(0, 12)
         self.dir = 1
