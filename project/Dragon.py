@@ -29,7 +29,7 @@ class IdleState:
         elif event == LEFT_UP:
             Dragon.velocity += 1
         if event == CTRL:
-            Dragon.attack_motion = 1
+            Dragon.is_attack = 1
 
 
     @staticmethod
@@ -40,6 +40,7 @@ class IdleState:
     @staticmethod
     def do(Dragon):
         Dragon.frame_speed += 1
+
         if Dragon.frame_speed > 30:
             Dragon.frame = (Dragon.frame + 1) % 16
             Dragon.frame_speed = 0
@@ -56,13 +57,19 @@ class IdleState:
                     Dragon.is_jump = 0
                     Dragon.is_high = 0
 
+        if Dragon.is_attack == 1:
+            Dragon.attack_time += 1
+            if Dragon.attack_time > 100:
+                Dragon.is_attack = 0
+                Dragon.attack_time = 0
+
     @staticmethod
     def draw(Dragon):
-        if Dragon.attack_motion == 1:
+        if Dragon.is_attack == 1:
             if Dragon.dir == 1:
-                Dragon.image.clip_draw(Dragon.frame * 16, 60, 16, 16, Dragon.x, Dragon.y, 50, 50)
+                Dragon.image.clip_draw(Dragon.frame * 16, 64, 16, 16, Dragon.x, Dragon.y, 50, 50)
             else:
-                Dragon.image.clip_draw(Dragon.frame * 16, 72, 16, 16, Dragon.x, Dragon.y, 50, 50)
+                Dragon.image.clip_draw(Dragon.frame * 16, 80, 16, 16, Dragon.x, Dragon.y, 50, 50)
 
 
         else:
@@ -93,7 +100,10 @@ class RunState:
             Dragon.velocity -= 1
         elif event == LEFT_UP:
             Dragon.velocity += 1
+        if event == CTRL:
+            Dragon.is_attack = 1
         Dragon.dir = Dragon.velocity
+
 
     @staticmethod
     def exit(Dragon, event):
@@ -125,19 +135,33 @@ class RunState:
                     Dragon.is_jump = 0
                     Dragon.is_high = 0
 
+        if Dragon.is_attack == 1:
+            Dragon.attack_time += 1
+            if Dragon.attack_time > 100:
+                Dragon.is_attack = 0
+                Dragon.attack_time = 0
+
     @staticmethod
     def draw(Dragon):
-        if Dragon.is_jump != 1:
-            if Dragon.velocity == 1:
-                Dragon.image.clip_draw(Dragon.frame * 16, 128, 16, 16, Dragon.x, Dragon.y, 50, 50)
+        if Dragon.is_attack == 1:
+            if Dragon.dir == 1:
+                Dragon.image.clip_draw(Dragon.frame * 16, 64, 16, 16, Dragon.x, Dragon.y, 50, 50)
             else:
-                Dragon.image.clip_draw(Dragon.frame * 16, 144, 16, 16, Dragon.x, Dragon.y, 50, 50)
+                Dragon.image.clip_draw(Dragon.frame * 16, 80, 16, 16, Dragon.x, Dragon.y, 50, 50)
+
 
         else:
-            if Dragon.dir == 1:
-                Dragon.image.clip_draw(Dragon.frame * 16, 0, 16, 16, Dragon.x, Dragon.y, 50, 50)
+            if Dragon.is_jump != 1:
+                if Dragon.velocity == 1:
+                    Dragon.image.clip_draw(Dragon.frame * 16, 128, 16, 16, Dragon.x, Dragon.y, 50, 50)
+                else:
+                    Dragon.image.clip_draw(Dragon.frame * 16, 144, 16, 16, Dragon.x, Dragon.y, 50, 50)
+
             else:
-                Dragon.image.clip_draw(Dragon.frame * 16, 16, 16, 16, Dragon.x, Dragon.y, 50, 50)
+                if Dragon.dir == 1:
+                    Dragon.image.clip_draw(Dragon.frame * 16, 0, 16, 16, Dragon.x, Dragon.y, 50, 50)
+                else:
+                    Dragon.image.clip_draw(Dragon.frame * 16, 16, 16, 16, Dragon.x, Dragon.y, 50, 50)
 
 
 
@@ -162,7 +186,8 @@ class Dragon:
         self.event_que = []
         self.cur_state = IdleState
         self.cur_state.enter(self, None)
-        self.attack_motion = 0
+        self.is_attack = 0
+        self.attack_time = 0
         self.is_jump = 0
         self.is_high = 0
 
