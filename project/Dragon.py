@@ -17,6 +17,9 @@ key_event_table = {
 class IdleState:
     @staticmethod
     def enter(Dragon, event):
+        if event == SPACE:
+            Dragon.is_jump = 1
+            Dragon.jump_y = Dragon. y + 110
         if event == RIGHT_DOWN:
             Dragon.velocity += 1
         elif event == LEFT_DOWN:
@@ -25,7 +28,8 @@ class IdleState:
             Dragon.velocity -= 1
         elif event == LEFT_UP:
             Dragon.velocity += 1
-
+        if event == CTRL:
+            Dragon.attack_motion = 1
 
 
     @staticmethod
@@ -40,16 +44,47 @@ class IdleState:
             Dragon.frame = (Dragon.frame + 1) % 16
             Dragon.frame_speed = 0
 
+        if Dragon.is_jump == 1:
+            if Dragon.is_high == 0:
+                Dragon.y += 1
+                if Dragon.y == Dragon.jump_y:
+                    Dragon.is_high = 1
+            elif Dragon.is_high == 1:
+                if Dragon.y != Dragon.temp_y:
+                    Dragon.y -= 1
+                elif Dragon.y == Dragon.temp_y:
+                    Dragon.is_jump = 0
+                    Dragon.is_high = 0
+
     @staticmethod
     def draw(Dragon):
-        if Dragon.dir == 1:
-             Dragon.image.clip_draw(Dragon.frame * 16, 32, 16, 16, Dragon.x, Dragon.y, 50, 50)
+        if Dragon.attack_motion == 1:
+            if Dragon.dir == 1:
+                Dragon.image.clip_draw(Dragon.frame * 16, 60, 16, 16, Dragon.x, Dragon.y, 50, 50)
+            else:
+                Dragon.image.clip_draw(Dragon.frame * 16, 72, 16, 16, Dragon.x, Dragon.y, 50, 50)
+
+
         else:
-             Dragon.image.clip_draw(Dragon.frame * 16, 48, 16, 16, Dragon.x, Dragon.y, 50, 50)
+            if Dragon.is_jump != 1:
+                if Dragon.dir == 1:
+                    Dragon.image.clip_draw(Dragon.frame * 16, 32, 16, 16, Dragon.x, Dragon.y, 50, 50)
+                else:
+                    Dragon.image.clip_draw(Dragon.frame * 16, 48, 16, 16, Dragon.x, Dragon.y, 50, 50)
+
+            elif Dragon.is_jump == 1:
+                if Dragon.dir == 1:
+                    Dragon.image.clip_draw(Dragon.frame * 16, 0, 16, 16, Dragon.x, Dragon.y, 50, 50)
+                else:
+                    Dragon.image.clip_draw(Dragon.frame * 16, 16, 16, 16, Dragon.x, Dragon.y, 50, 50)
+
 
 class RunState:
     @staticmethod
     def enter(Dragon, event):
+        if event == SPACE:
+            Dragon.is_jump = 1
+            Dragon.jump_y = Dragon. y + 110
         if event == RIGHT_DOWN:
             Dragon.velocity += 1
         elif event == LEFT_DOWN:
@@ -71,23 +106,46 @@ class RunState:
         if Dragon.frame_speed > 30:
             Dragon.frame = (Dragon.frame + 1) % 16
             Dragon.frame_speed = 0
-        Dragon.x += Dragon.velocity * 2
+
+        if Dragon.is_jump == 0:
+            Dragon.x += Dragon.velocity * 2
+        else:
+            Dragon.x += Dragon.velocity * 1
         Dragon.x = clamp(70, Dragon.x, 960 - 70)
+
+        if Dragon.is_jump == 1:
+            if Dragon.is_high == 0:
+                Dragon.y += 1
+                if Dragon.y == Dragon.jump_y:
+                    Dragon.is_high = 1
+            elif Dragon.is_high == 1:
+                if Dragon.y != Dragon.temp_y:
+                    Dragon.y -= 1
+                elif Dragon.y == Dragon.temp_y:
+                    Dragon.is_jump = 0
+                    Dragon.is_high = 0
 
     @staticmethod
     def draw(Dragon):
-        if Dragon.velocity == 1:
-            Dragon.image.clip_draw(Dragon.frame * 16, 128, 16, 16, Dragon.x, Dragon.y, 50, 50)
+        if Dragon.is_jump != 1:
+            if Dragon.velocity == 1:
+                Dragon.image.clip_draw(Dragon.frame * 16, 128, 16, 16, Dragon.x, Dragon.y, 50, 50)
+            else:
+                Dragon.image.clip_draw(Dragon.frame * 16, 144, 16, 16, Dragon.x, Dragon.y, 50, 50)
+
         else:
-            Dragon.image.clip_draw(Dragon.frame * 16, 144, 16, 16, Dragon.x, Dragon.y, 50, 50)
+            if Dragon.dir == 1:
+                Dragon.image.clip_draw(Dragon.frame * 16, 0, 16, 16, Dragon.x, Dragon.y, 50, 50)
+            else:
+                Dragon.image.clip_draw(Dragon.frame * 16, 16, 16, 16, Dragon.x, Dragon.y, 50, 50)
 
 
 
 next_state_table = {
     IdleState: {RIGHT_UP: RunState, LEFT_UP: RunState, RIGHT_DOWN: RunState,
-                LEFT_DOWN: RunState, CTRL: IdleState},
+                LEFT_DOWN: RunState, CTRL: IdleState, SPACE : IdleState},
     RunState: {RIGHT_UP: IdleState, LEFT_UP: IdleState, LEFT_DOWN: IdleState,
-               RIGHT_DOWN: IdleState, CTRL: RunState}
+               RIGHT_DOWN: IdleState, CTRL: RunState, SPACE:RunState }
 
 }
 
@@ -95,7 +153,7 @@ next_state_table = {
 class Dragon:
     def __init__(self):
         self.x, self.y = 480, 50
-        self.jump_x, self.jump_y = self.x, self.y
+        self.temp_y, self.jump_y = self.y,  self.y
         self.image = load_image('sprite\\Character\\character.png')
         self.dir = 1
         self.velocity = 0
@@ -105,6 +163,8 @@ class Dragon:
         self.cur_state = IdleState
         self.cur_state.enter(self, None)
         self.attack_motion = 0
+        self.is_jump = 0
+        self.is_high = 0
 
     def bubble(self):
         bubble = Bubble(self.x, self.y, self.dir * 1.5)
