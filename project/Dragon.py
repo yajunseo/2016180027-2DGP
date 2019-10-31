@@ -18,8 +18,9 @@ class IdleState:
     @staticmethod
     def enter(Dragon, event):
         if event == SPACE:
-            Dragon.is_jump = 1
-            Dragon.jump_y = Dragon. y + 110
+            if Dragon.is_jump == 0:
+                Dragon.is_jump = 1
+                Dragon.jump_y = Dragon. y + 120
         if event == RIGHT_DOWN:
             Dragon.velocity += 1
         elif event == LEFT_DOWN:
@@ -90,8 +91,9 @@ class RunState:
     @staticmethod
     def enter(Dragon, event):
         if event == SPACE:
-            Dragon.is_jump = 1
-            Dragon.jump_y = Dragon. y + 110
+            if Dragon.is_jump == 0:
+                Dragon.is_jump = 1
+                Dragon.jump_y = Dragon. y + 120
         if event == RIGHT_DOWN:
             Dragon.velocity += 1
         elif event == LEFT_DOWN:
