@@ -5,7 +5,7 @@ import game_world
 
 # Boy Run Speed
 # fill expressions correctly
-PIXEL_PER_METER = (10.0 / 0.3)
+PIXEL_PER_METER = (182.0 / 0.3)
 RUN_SPEED_KMPH = 20.0
 RUN_SPEED_MPM = (RUN_SPEED_KMPH * 1000.0 / 60.0)
 RUN_SPEED_MPS = (RUN_SPEED_MPM / 60.0)
@@ -38,14 +38,16 @@ class FlyState:
     @staticmethod
     def enter(bird, event):
         if event == RIGHT_DOWN:
+            bird.dir == 1
             bird.velocity += RUN_SPEED_PPS
         elif event == LEFT_DOWN:
+            bird.dir == -1
             bird.velocity -= RUN_SPEED_PPS
         elif event == RIGHT_UP:
             bird.velocity -= RUN_SPEED_PPS
         elif event == LEFT_UP:
             bird.velocity += RUN_SPEED_PPS
-        bird.timer = 1000
+
 
     @staticmethod
     def exit(bird, event):
@@ -54,25 +56,20 @@ class FlyState:
     @staticmethod
     def do(bird):
         bird.frame = (bird.frame + FRAMES_PER_ACTION * ACTION_PER_TIME * game_framework.frame_time) % 4
-        if bird.dir == 1:
-            bird.x += boy.velocity * game_framework.frame_time
-            if bird.x == 1500:
-                bird.dir = -1
-        else:
-            bird.x -= boy.velocity * game_framework.frame_time
-            if bird.x == 200:
-                bird.dir = 1
+        bird.x += bird.velocity * game_framework.frame_time
         bird.x = clamp(25, bird.x, 1600 - 25)
+
 
     @staticmethod
     def draw(bird):
         if bird.dir == 1:
             bird.image.clip_draw(int(bird.frame) * 182, 0, 182, 150, bird.x, bird.y+200)
         else :
-            
+            bird.image.clip_composite_draw(int(bird.frame) * 182, 0, 182, 150, 0, 'v', bird.x, bird.y + 200)
 
 next_state_table = {
-    FlyState: {}
+    FlyState: {RIGHT_UP:  FlyState, LEFT_UP:  FlyState, RIGHT_DOWN:  FlyState, LEFT_DOWN:  FlyState,
+                 SPACE:  FlyState}
   }
 
 class Bird:
