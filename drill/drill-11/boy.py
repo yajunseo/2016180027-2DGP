@@ -48,8 +48,6 @@ class IdleState:
 
     @staticmethod
     def exit(boy, event):
-        if event == SPACE:
-            boy.fire_ball()
         pass
 
     @staticmethod
@@ -83,8 +81,7 @@ class RunState:
 
     @staticmethod
     def exit(boy, event):
-        if event == SPACE:
-            boy.fire_ball()
+        pass
 
     @staticmethod
     def do(boy):
@@ -153,9 +150,6 @@ class Boy:
         return 0, 0, 0, 0
 
 
-    def fire_ball(self):
-        ball = Ball(self.x, self.y, self.dir * RUN_SPEED_PPS * 10)
-        game_world.add_object(ball, 1)
 
 
     def add_event(self, event):

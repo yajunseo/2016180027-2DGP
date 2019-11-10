@@ -31,7 +31,6 @@ def collide(a, b):
     return True
 
 
-
 def enter():
     global boy
     boy = Boy()
@@ -50,9 +49,9 @@ def enter():
     game_world.add_object(brick, 2)
 
 
-
 def exit():
     game_world.clear()
+
 
 def pause():
     pass
@@ -68,7 +67,7 @@ def handle_events():
         if event.type == SDL_QUIT:
             game_framework.quit()
         elif event.type == SDL_KEYDOWN and event.key == SDLK_ESCAPE:
-                game_framework.quit()
+            game_framework.quit()
         else:
             boy.handle_event(event)
 
@@ -77,10 +76,10 @@ def update():
     for game_object in game_world.all_objects():
         game_object.update()
 
-#    for ball in balls:
-#        if collide(boy, ball):
-#            balls.remove(ball)
-#            game_world.remove_object(ball)
+    #    for ball in balls:
+    #        if collide(boy, ball):
+    #            balls.remove(ball)
+    #            game_world.remove_object(ball)
 
     for ball in balls:
         if collide(grass, ball):
@@ -90,15 +89,14 @@ def update():
         if collide(brick, ball):
             ball.stop_brick()
 
+    for ball in balls:
+        if not collide(brick, ball) and not collide(grass, ball):
+            ball.start_update()
+
+
 
 def draw():
     clear_canvas()
     for game_object in game_world.all_objects():
         game_object.draw()
     update_canvas()
-
-
-
-
-
-
