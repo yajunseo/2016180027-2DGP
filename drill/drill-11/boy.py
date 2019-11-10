@@ -1,6 +1,7 @@
 import game_framework
 from pico2d import *
 from ball import Ball
+import main_state
 
 import game_world
 
@@ -36,6 +37,10 @@ class IdleState:
 
     @staticmethod
     def enter(boy, event):
+        if event == SPACE:
+            if not boy.is_jump:
+                boy.is_jump = 1
+                boy.jump_y = boy.y + 200
         if event == RIGHT_DOWN:
             boy.velocity += RUN_SPEED_PPS
         elif event == LEFT_DOWN:
@@ -57,6 +62,15 @@ class IdleState:
         if boy.timer == 0:
             boy.add_event(SLEEP_TIMER)
 
+        boy.distance = main_state.brick.x - boy.x
+        if boy.is_jump:
+            if not boy.is_high:
+                boy.y += boy.jump_speed * game_framework.frame_time
+                if boy.y >= boy.jump_y:
+                    boy.is_high = 1
+            else:
+                boy.y -= boy.jump_speed * game_framework.frame_time
+
     @staticmethod
     def draw(boy):
         if boy.dir == 1:
@@ -69,6 +83,10 @@ class RunState:
 
     @staticmethod
     def enter(boy, event):
+        if event == SPACE:
+            if not boy.is_jump:
+                boy.is_jump = 1
+                boy.jump_y = boy.y + 200
         if event == RIGHT_DOWN:
             boy.velocity += RUN_SPEED_PPS
         elif event == LEFT_DOWN:
@@ -89,6 +107,17 @@ class RunState:
         boy.frame = (boy.frame + FRAMES_PER_ACTION * ACTION_PER_TIME * game_framework.frame_time) % 8
         boy.x += boy.velocity * game_framework.frame_time
         boy.x = clamp(25, boy.x, 1600 - 25)
+
+        boy.distance = main_state.brick.x - boy.x
+
+        if boy.is_jump:
+            if not boy.is_high:
+                boy.y += boy.jump_speed * game_framework.frame_time
+                if boy.y >= boy.jump_y:
+                    boy.is_high = 1
+            else:
+                boy.y -= boy.jump_speed * game_framework.frame_time
+
 
     @staticmethod
     def draw(boy):
@@ -143,6 +172,11 @@ class Boy:
         self.event_que = []
         self.cur_state = IdleState
         self.cur_state.enter(self, None)
+        self.is_jump = 0
+        self.jump_y = 0
+        self.is_high = 0
+        self.jump_speed = 200
+        self.distance = 0
 
     def get_bb(self):
         return self.x - 50, self.y - 50, self.x + 50, self.y + 50
@@ -163,6 +197,7 @@ class Boy:
             self.cur_state = next_state_table[self.cur_state][event]
             self.cur_state.enter(self, event)
 
+
     def draw(self):
         self.cur_state.draw(self)
         self.font.draw(self.x - 60, self.y + 50, '(Time: %3.2f)' % get_time(), (255, 255, 0))
@@ -175,3 +210,18 @@ class Boy:
             key_event = key_event_table[(event.type, event.key)]
             self.add_event(key_event)
 
+
+    def stop(self):
+        self.jump_speed = 0
+        self.is_high = 0
+        self.is_jump = 0
+
+    def stop_brick(self):
+        self.jump_speed = 0
+        self.is_high = 0
+        self.is_jump = 0
+        self.x = main_state.brick.x - self.distance
+
+    def start_update(self):
+        self.jump_speed = 200
+        self.is_jump = 1

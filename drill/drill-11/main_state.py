@@ -93,6 +93,15 @@ def update():
         if not collide(brick, ball) and not collide(grass, ball):
             ball.start_update()
 
+    if collide(boy, brick):
+        boy.stop_brick()
+
+    elif not collide(brick, boy) and not collide(grass, boy):
+        boy.start_update()
+
+
+
+
 
 
 def draw():
