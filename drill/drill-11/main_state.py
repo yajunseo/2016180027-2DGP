@@ -99,6 +99,9 @@ def update():
     elif not collide(brick, boy) and not collide(grass, boy):
         boy.start_update()
 
+    if boy.is_fall:
+        if collide(boy, grass):
+            boy.stop()
 
 
 

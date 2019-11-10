@@ -9,11 +9,11 @@ class Grass:
         pass
 
     def draw(self):
+
         self.image.draw(400, 30)
-        self.image.draw(1200, 30)
         draw_rectangle(*self.get_bb())
 
     def get_bb(self):
-        return 0, 0, 1600 - 1, 50
+        return 0, 0, 800 - 1, 50
 
 

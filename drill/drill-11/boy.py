@@ -39,6 +39,7 @@ class IdleState:
     def enter(boy, event):
         if event == SPACE:
             if not boy.is_jump:
+                boy.jump_speed = 200
                 boy.is_jump = 1
                 boy.jump_y = boy.y + 200
         if event == RIGHT_DOWN:
@@ -70,6 +71,7 @@ class IdleState:
                     boy.is_high = 1
             else:
                 boy.y -= boy.jump_speed * game_framework.frame_time
+                boy.is_fall = 1
 
     @staticmethod
     def draw(boy):
@@ -85,6 +87,7 @@ class RunState:
     def enter(boy, event):
         if event == SPACE:
             if not boy.is_jump:
+                boy.jump_speed = 200
                 boy.is_jump = 1
                 boy.jump_y = boy.y + 200
         if event == RIGHT_DOWN:
@@ -106,7 +109,7 @@ class RunState:
         #boy.frame = (boy.frame + 1) % 8
         boy.frame = (boy.frame + FRAMES_PER_ACTION * ACTION_PER_TIME * game_framework.frame_time) % 8
         boy.x += boy.velocity * game_framework.frame_time
-        boy.x = clamp(25, boy.x, 1600 - 25)
+        boy.x = clamp(25, boy.x, 800 - 25)
 
         boy.distance = main_state.brick.x - boy.x
 
@@ -117,6 +120,7 @@ class RunState:
                     boy.is_high = 1
             else:
                 boy.y -= boy.jump_speed * game_framework.frame_time
+                boy.is_fall = 1
 
 
     @staticmethod
@@ -162,7 +166,7 @@ next_state_table = {
 class Boy:
 
     def __init__(self):
-        self.x, self.y = 1600 // 2, 90
+        self.x, self.y = 800 // 2, 90
         # Boy is only once created, so instance image loading is fine
         self.image = load_image('animation_sheet.png')
         self.font = load_font('ENCR10B.TTF', 16)
@@ -177,6 +181,7 @@ class Boy:
         self.is_high = 0
         self.jump_speed = 200
         self.distance = 0
+        self.is_fall = 0
 
     def get_bb(self):
         return self.x - 50, self.y - 50, self.x + 50, self.y + 50
@@ -215,13 +220,17 @@ class Boy:
         self.jump_speed = 0
         self.is_high = 0
         self.is_jump = 0
+        self.is_fall = 0
 
     def stop_brick(self):
         self.jump_speed = 0
         self.is_high = 0
         self.is_jump = 0
+        self.is_fall = 0
         self.x = main_state.brick.x - self.distance
 
     def start_update(self):
         self.jump_speed = 200
+
         self.is_jump = 1
+        self.is_fall = 1
