@@ -68,7 +68,6 @@ def update():
 
     for zom in zombies:
         if collide(boy, zom):
-          #  ranking_state.ranking_data = boy.live_time
             game_framework.change_state(ranking_state)
 
 def draw():

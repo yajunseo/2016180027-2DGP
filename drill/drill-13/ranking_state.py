@@ -65,7 +65,7 @@ def draw():
     font.draw(0, 800, "Total Ranking")
     for i in range(min(10, len(top10_ranking_list))):
         font.draw(0, 700 - i * 15, "# " + str(i + 1) + ".")
-        font.draw(80 , 700 - i * 15, str(top10_ranking_list[i]))
+        font.draw(80 , 700 - i * 15, "%0.2f"%(top10_ranking_list[i]))
    #     for j in range(10):
    #         if
   #          font.draw(80 + j*2, 700 - i * 15, str(top10_ranking_list[i][j]))
