@@ -10,22 +10,26 @@ import game_world
 import world_build_state
 name = "Ranking_State"
 
-time_ranking_list = []
+top10_ranking_list = []
 ranking_data = None
 font = None
 
-
+import main_state
 
 def enter():
-    global time_ranking_list, font, ranking_data
-    font = load_font('ENCR10B.TTF', 20)
+    global top10_ranking_list, font, ranking_data
+    ranking_data = main_state.get_live_data()
     with open('ranking_data.json', 'r') as f:
-        ranking_data = json.load(f)
+        top10_ranking_list = json.load(f)
 
-    time_ranking_list.append(ranking_data)
-    time_ranking_list.sort(reverse=True)
+    top10_ranking_list.append(ranking_data)
+    top10_ranking_list.sort(reverse=True)
+
+    font = load_font('ENCR10B.TTF', 20)
+
     with open('ranking_data.json', 'w') as f:
-        json.dump(time_ranking_list, f)
+        json.dump(top10_ranking_list, f)
+    pass
 
 
 def exit():
@@ -59,9 +63,9 @@ def draw():
     clear_canvas()
 
     font.draw(0, 800, "Total Ranking")
-    for i in range(10):
+    for i in range(min(10, len(top10_ranking_list))):
         font.draw(0, 700 - i * 15, "# " + str(i + 1) + ".")
-        font.draw(80, 700 - i * 15, str(time_ranking_list[i]))
+        font.draw(80 , 700 - i * 15, str(top10_ranking_list[i]))
    #     for j in range(10):
    #         if
   #          font.draw(80 + j*2, 700 - i * 15, str(top10_ranking_list[i][j]))

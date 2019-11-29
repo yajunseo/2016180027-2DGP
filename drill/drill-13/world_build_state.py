@@ -12,7 +12,7 @@ import main_state
 from boy import Boy
 from zombie import Zombie
 
-
+zombies = []
 boy = None
 
 
@@ -21,8 +21,9 @@ name = "WorldBuildState"
 menu = None
 
 def enter():
-    global menu
+    global menu, zombies
     menu = load_image('menu.png')
+    zombies.clear()
     hide_cursor()
     hide_lattice()
 
@@ -36,13 +37,16 @@ def pause():
 def resume():
     pass
 
+def get_zombie():
+    return zombies
+
 def get_boy():
     return boy
 
 
 
 def create_new_world():
-    global boy
+    global boy, zombies
     boy = Boy()
     game_world.add_object(boy, 1)
 
@@ -51,7 +55,10 @@ def create_new_world():
 
     for data in zombie_data_list:
         zombie = Zombie(data['name'], data['x'], data['y'], data['size'])
+        zombies.append(zombie)
         game_world.add_object(zombie, 1)
+
+
 
 
 

@@ -3,6 +3,7 @@ import json
 import pickle
 import os
 
+import ranking_state
 from pico2d import *
 import game_framework
 import game_world
@@ -24,13 +25,14 @@ def collide(a, b):
 
     return True
 
-boy = None
+
 zombies = []
+boy = None
 
 def enter():
     # game world is prepared already in world_build_state
     global boy, zombies
-    zobies = world_build_state.get_zombie()
+    zombies = world_build_state.get_zombie()
     boy = world_build_state.get_boy()
     pass
 
@@ -57,18 +59,17 @@ def handle_events():
         else:
             boy.handle_event(event)
 
+def get_live_data():
+    return boy.live_time
 
 def update():
     for game_object in game_world.all_objects():
         game_object.update()
 
     for zom in zombies:
-        if collide(boy,zom):
-            with open('ranking_data.json','wb') as f:
-                pickle.dump(boy.time_end, f)
-
+        if collide(boy, zom):
+          #  ranking_state.ranking_data = boy.live_time
             game_framework.change_state(ranking_state)
-
 
 def draw():
     clear_canvas()
